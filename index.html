@@ -7,13 +7,19 @@
     <style>
         /* ===== Reset & Base ===== */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+        html {
+            scroll-behavior: smooth;
+            /* === 修复：滚动吸附改为 mandatory，添加 padding 缓解 Safari 卡顿 === */
+            scroll-snap-type: y mandatory;
+            scroll-padding-top: 10vh;
+        }
         body {
             font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Serif SC", serif;
             background: #0a0a0f;
             color: #e8e0e8;
             overflow-x: hidden;
-            cursor: default;
+            /* === 修复：移除 cursor: default，恢复 auto === */
+            cursor: auto;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -52,11 +58,13 @@
             filter: drop-shadow(0 0 60px rgba(231, 121, 138, 0.35));
             letter-spacing: -2px;
             transition: all 0.8s ease;
+            cursor: pointer;
         }
         @keyframes heroFloat {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-16px); }
         }
+        /* === A11y：标题使用 h1/h2 语义标签 === */
         #hero .subtitle-cn {
             font-size: 28px; font-weight: 600;
             color: #f0c4d0; letter-spacing: 6px;
@@ -64,7 +72,9 @@
             transition: all 0.6s ease;
         }
         #hero .subtitle-en {
-            font-size: 15px; color: rgba(232,180,195,0.6);
+            font-size: 15px;
+            /* === A11y：对比度从 0.6 提升至 0.75 === */
+            color: rgba(232,180,195,0.75);
             letter-spacing: 4px; text-transform: uppercase;
             margin-bottom: 40px;
             transition: all 0.6s ease;
@@ -87,17 +97,23 @@
             transition: all 0.5s ease;
         }
         .countdown-item .label {
-            font-size: 12px; color: rgba(232,180,195,0.5);
+            font-size: 12px;
+            /* === A11y：对比度从 0.5 提升至 0.7 === */
+            color: rgba(232,180,195,0.7);
             margin-top: 4px; letter-spacing: 2px;
         }
         .scroll-hint {
-            margin-top: 48px; font-size: 13px; color: rgba(232,180,195,0.35);
+            margin-top: 48px; font-size: 13px;
+            /* === A11y：对比度提升 === */
+            color: rgba(232,180,195,0.7);
             letter-spacing: 3px; animation: hintPulse 2s ease-in-out infinite;
+            cursor: pointer;
         }
         @keyframes hintPulse {
-            0%,100% { opacity: 0.35; } 50% { opacity: 0.8; }
+            0%,100% { opacity: 0.5; } 50% { opacity: 0.9; }
         }
-        /* Birthday mode */
+
+        /* === 生日庆祝模式 === */
         #hero.birthday-mode .date-3d {
             background: linear-gradient(180deg, #ffd700 0%, #ffb347 40%, #ff6b9d 100%);
             -webkit-background-clip: text; background-clip: text;
@@ -112,11 +128,9 @@
             color: #ffd700; letter-spacing: 8px;
         }
         #hero.birthday-mode .subtitle-en {
-            color: rgba(255,215,0,0.7);
+            color: rgba(255,215,0,0.75);
         }
-        #hero.birthday-mode .countdown-row {
-            gap: 8px;
-        }
+        #hero.birthday-mode .countdown-row { gap: 8px; }
         #hero.birthday-mode .countdown-item {
             background: rgba(255,215,0,0.1);
             border-color: rgba(255,215,0,0.3);
@@ -138,18 +152,14 @@
             font-weight: 700;
             animation: bannerIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        #hero.birthday-mode .birthday-banner {
-            display: inline-block;
-        }
+        #hero.birthday-mode .birthday-banner { display: inline-block; }
         @keyframes bannerIn {
             from { opacity: 0; transform: scale(0.8) translateY(20px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         /* ===== Section 2: Wishes ===== */
-        #wishes {
-            flex-direction: column; text-align: center;
-        }
+        #wishes { flex-direction: column; text-align: center; }
         .section-tag {
             font-size: 12px; letter-spacing: 4px; color: #e8798a;
             text-transform: uppercase; margin-bottom: 8px;
@@ -168,7 +178,21 @@
             transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
         }
+        /* === 悬停微动效：仅在 hover 设备上生效 === */
+        @media (hover: hover) {
+            .wish-card:hover {
+                transform: scale(1.02);
+            }
+            .wish-card:hover .face.front {
+                box-shadow: 0 0 20px rgba(231,121,138,0.3);
+            }
+            .polaroid:hover {
+                transform: rotate(0deg) scale(1.05);
+                box-shadow: 0 16px 48px rgba(200,140,160,0.35);
+            }
+        }
         .wish-card.flipped { transform: rotateY(180deg); }
+        .wish-card.flipped:hover { transform: rotateY(180deg); }
         .wish-card .face {
             position: absolute; inset: 0; border-radius: 16px;
             display: flex; flex-direction: column; align-items: center;
@@ -194,6 +218,15 @@
             color: #f0d4dc;
         }
 
+        /* 全翻奖励文字 */
+        .all-flipped-hint {
+            margin-top: 20px; font-size: 13px;
+            color: rgba(240,196,208,0.6);
+            letter-spacing: 2px;
+            opacity: 0; transition: opacity 0.8s ease;
+        }
+        .all-flipped-hint.visible { opacity: 1; }
+
         /* ===== Section 3: Gallery ===== */
         #gallery { flex-direction: column; text-align: center; }
         .polaroid-grid {
@@ -207,10 +240,6 @@
             transform: rotate(var(--r, 0deg));
             transition: transform 0.35s ease, box-shadow 0.35s ease;
             cursor: pointer;
-        }
-        .polaroid:hover {
-            transform: rotate(0deg) scale(1.05);
-            box-shadow: 0 16px 48px rgba(200,140,160,0.3);
         }
         .polaroid .photo {
             aspect-ratio: 1; border-radius: 2px; overflow: hidden;
@@ -283,7 +312,9 @@
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
         }
         .gift-tip {
-            font-size: 13px; color: rgba(232,180,195,0.5);
+            font-size: 13px;
+            /* === A11y：对比度提升至 0.7 === */
+            color: rgba(232,180,195,0.7);
             letter-spacing: 2px; margin-top: 8px;
         }
         /* Watch Reveal */
@@ -314,9 +345,7 @@
             0%,100% { transform: translateY(0); }
             50% { transform: translateY(-8px); }
         }
-        .watch-display .watch-face {
-            text-align: center; position: relative; z-index: 1;
-        }
+        .watch-display .watch-face { text-align: center; position: relative; z-index: 1; }
         .watch-display .watch-emoji {
             font-size: 56px; display: block;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
@@ -347,7 +376,7 @@
             margin-bottom: 12px;
         }
         .watch-info .gift-meaning {
-            font-size: 14px; color: rgba(212,184,196,0.8);
+            font-size: 14px; color: rgba(212,184,196,0.85);
             line-height: 1.9; font-style: italic;
         }
 
@@ -406,6 +435,7 @@
             section { padding: 60px 16px; }
             .countdown-item { min-width: 56px; padding: 12px 14px; }
             .countdown-item .num { font-size: 28px; }
+            #hero.birthday-mode .countdown-item .num { font-size: 34px; }
             .wish-cards { grid-template-columns: repeat(2, 1fr); }
             .polaroid-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -414,351 +444,259 @@
 <body>
 
 <!-- Ambient starfield canvas -->
-<canvas class="stars-canvas" id="starsCanvas"></canvas>
+<canvas class="stars-canvas" id="starsCanvas" aria-hidden="true"></canvas>
 <!-- Confetti & spark layer -->
-<div class="confetti-container" id="confettiContainer"></div>
+<div class="confetti-container" id="confettiContainer" aria-hidden="true"></div>
 
-<!-- ════════════ Hero ════════════ -->
-<section id="hero">
-    <div class="inner">
-        <div class="date-3d">7 · 4</div>
-        <div class="subtitle-cn">写给23岁的你</div>
-        <div class="subtitle-en">To your twenty-three</div>
-        <div class="countdown-row" id="countdown">
-            <div class="countdown-item"><div class="num" id="cd-days">--</div><div class="label">天</div></div>
-            <div class="countdown-item"><div class="num" id="cd-hours">--</div><div class="label">时</div></div>
-            <div class="countdown-item"><div class="num" id="cd-mins">--</div><div class="label">分</div></div>
-            <div class="countdown-item"><div class="num" id="cd-secs">--</div><div class="label">秒</div></div>
+<!-- === 语义化：用 <main> 包裹主体内容 === -->
+<main>
+    <!-- ════════════ Hero ════════════ -->
+    <section id="hero">
+        <div class="inner">
+            <!-- === 语义化：7·4 使用 h1 === -->
+            <h1 class="date-3d">7 · 4</h1>
+            <!-- === 语义化：副标题使用 h2 === -->
+            <h2 class="subtitle-cn">写给23岁的<span class="recipient-target">你</span></h2>
+            <p class="subtitle-en" aria-hidden="true">To Your 23rd</p>
+            <div class="countdown-row" id="countdown">
+                <div class="countdown-item"><div class="num" id="cd-days">--</div><div class="label">天</div></div>
+                <div class="countdown-item"><div class="num" id="cd-hours">--</div><div class="label">时</div></div>
+                <div class="countdown-item"><div class="num" id="cd-mins">--</div><div class="label">分</div></div>
+                <div class="countdown-item"><div class="num" id="cd-secs">--</div><div class="label">秒</div></div>
+            </div>
+            <div class="birthday-banner" id="birthdayBanner">🎂 就是今天！生日快乐！🎂</div>
+            <p class="scroll-hint" id="scrollHint">↓ 向下滑动 ↓</p>
         </div>
-        <div class="birthday-banner" id="birthdayBanner">🎂 就是今天！生日快乐！🎂</div>
-        <div class="scroll-hint" id="scrollHint">↓ 向下滑动 ↓</div>
-    </div>
-</section>
+    </section>
 
-<!-- ════════════ Wishes ════════════ -->
-<section id="wishes">
-    <div class="inner">
-        <div class="section-tag">· Wishes ·</div>
-        <div class="section-title">四个小小的祝福</div>
-        <div class="wish-cards" id="wishCards">
-            <div class="wish-card" data-index="0">
-                <div class="face front">
-                    <span class="card-icon">🌸</span>
-                    <span class="card-label">点击翻开</span>
+    <!-- ════════════ Wishes ════════════ -->
+    <section id="wishes">
+        <div class="inner">
+            <p class="section-tag" aria-hidden="true">· Wishes ·</p>
+            <h2 class="section-title">四个小小的祝福</h2>
+            <div class="wish-cards" id="wishCards">
+                <div class="wish-card" data-index="0">
+                    <div class="face front">
+                        <span class="card-icon" role="img" aria-hidden="true">🌸</span>
+                        <span class="card-label">点击翻开</span>
+                    </div>
+                    <div class="face back">愿<span class="recipient-target">你</span>永远像春天<br>温柔而坚定<br>灿烂而从容</div>
                 </div>
-                <div class="face back">愿你永远像春天<br>温柔而坚定<br>灿烂而从容</div>
+                <div class="wish-card" data-index="1">
+                    <div class="face front">
+                        <span class="card-icon" role="img" aria-hidden="true">✨</span>
+                        <span class="card-label">点击翻开</span>
+                    </div>
+                    <div class="face back">愿<span class="recipient-target">你</span>所求皆如愿<br>所行化坦途<br>多喜乐，长安宁</div>
+                </div>
+                <div class="wish-card" data-index="2">
+                    <div class="face front">
+                        <span class="card-icon" role="img" aria-hidden="true">🌙</span>
+                        <span class="card-label">点击翻开</span>
+                    </div>
+                    <div class="face back">愿有人陪<span class="recipient-target">你</span>颠沛流离<br>如果没有<br>愿<span class="recipient-target">你</span>成为自己的太阳</div>
+                </div>
+                <div class="wish-card" data-index="3">
+                    <div class="face front">
+                        <span class="card-icon" role="img" aria-hidden="true">💫</span>
+                        <span class="card-label">点击翻开</span>
+                    </div>
+                    <div class="face back">23岁是最美的年纪<br>刚刚好的成熟<br>刚刚好的天真</div>
+                </div>
             </div>
-            <div class="wish-card" data-index="1">
-                <div class="face front">
-                    <span class="card-icon">✨</span>
-                    <span class="card-label">点击翻开</span>
+            <!-- === 全翻奖励文字（初始隐藏） === -->
+            <p class="all-flipped-hint" id="allFlippedHint">每一份祝福都是真的。</p>
+        </div>
+    </section>
+
+    <!-- ════════════ Gallery ════════════ -->
+    <section id="gallery">
+        <div class="inner">
+            <p class="section-tag" aria-hidden="true">· Moments ·</p>
+            <h2 class="section-title">属于<span class="recipient-target">你</span>的美好瞬间</h2>
+            <div class="polaroid-grid">
+                <div class="polaroid" style="--r:-3deg;--c1:#f8d5e0;--c2:#e8b8cc" aria-label="每一个日出都值得">
+                    <div class="photo" role="img" aria-hidden="true">🌅</div>
+                    <div class="caption">每一个日出都值得</div>
                 </div>
-                <div class="face back">愿你所求皆如愿<br>所行化坦途<br>多喜乐，长安宁</div>
-            </div>
-            <div class="wish-card" data-index="2">
-                <div class="face front">
-                    <span class="card-icon">🌙</span>
-                    <span class="card-label">点击翻开</span>
+                <div class="polaroid" style="--r:2deg;--c1:#dce8f8;--c2:#c4d4f0" aria-label="心中有海，处处花开">
+                    <div class="photo" role="img" aria-hidden="true">🌊</div>
+                    <div class="caption">心中有海，处处花开</div>
                 </div>
-                <div class="face back">愿有人陪你颠沛流离<br>如果没有<br>愿你成为自己的太阳</div>
-            </div>
-            <div class="wish-card" data-index="3">
-                <div class="face front">
-                    <span class="card-icon">💫</span>
-                    <span class="card-label">点击翻开</span>
+                <div class="polaroid" style="--r:-1.5deg;--c1:#f8e8d5;--c2:#f0d8b8" aria-label="向阳而生">
+                    <div class="photo" role="img" aria-hidden="true">🌻</div>
+                    <div class="caption">向阳而生</div>
                 </div>
-                <div class="face back">23岁是最美的年纪<br>刚刚好的成熟<br>刚刚好的天真</div>
+                <div class="polaroid" style="--r:4deg;--c1:#e8d5f8;--c2:#d4b8f0" aria-label="永远热爱生活">
+                    <div class="photo" role="img" aria-hidden="true">💖</div>
+                    <div class="caption">永远热爱生活</div>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- ════════════ Gallery ════════════ -->
-<section id="gallery">
-    <div class="inner">
-        <div class="section-tag">· Moments ·</div>
-        <div class="section-title">属于你的美好瞬间</div>
-        <div class="polaroid-grid">
-            <div class="polaroid" style="--r:-3deg;--c1:#f8d5e0;--c2:#e8b8cc" onclick="launchConfetti(30)">
-                <div class="photo">🌅</div>
-                <div class="caption">每一个日出都值得</div>
-            </div>
-            <div class="polaroid" style="--r:2deg;--c1:#dce8f8;--c2:#c4d4f0" onclick="launchConfetti(30)">
-                <div class="photo">🌊</div>
-                <div class="caption">心中有海，处处花开</div>
-            </div>
-            <div class="polaroid" style="--r:-1.5deg;--c1:#f8e8d5;--c2:#f0d8b8" onclick="launchConfetti(30)">
-                <div class="photo">🌻</div>
-                <div class="caption">向阳而生</div>
-            </div>
-            <div class="polaroid" style="--r:4deg;--c1:#e8d5f8;--c2:#d4b8f0" onclick="launchConfetti(30)">
-                <div class="photo">💖</div>
-                <div class="caption">永远热爱生活</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ════════════ Gift ════════════ -->
-<section id="gift">
-    <div class="inner">
-        <div class="section-tag">· Surprise ·</div>
-        <div class="section-title">🎁 有一份礼物要送给你</div>
-        <div class="gift-scene">
-            <div class="gift-box" id="giftBox">
-                <div class="gift-box-inner">
-                    <div class="gift-lid"></div>
-                    <div class="gift-body">
-                        <div class="gift-ribbon-h"></div>
+    <!-- ════════════ Gift ════════════ -->
+    <section id="gift">
+        <div class="inner">
+            <p class="section-tag" aria-hidden="true">· Surprise ·</p>
+            <h2 class="section-title">🎁 有一份礼物要送给<span class="recipient-target">你</span></h2>
+            <div class="gift-scene">
+                <div class="gift-box" id="giftBox">
+                    <div class="gift-box-inner">
+                        <div class="gift-lid"></div>
+                        <div class="gift-body">
+                            <div class="gift-ribbon-h"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="gift-tip" id="giftTip">👆 点一下盒子拆开看看</div>
-        <!-- Watch reveal (hidden until gift opens) -->
-        <div class="watch-reveal" id="watchReveal">
-            <div class="watch-display">
-                <div class="watch-face">
-                    <span class="watch-emoji">⌚</span>
+            <p class="gift-tip" id="giftTip">👆 点一下盒子拆开看看</p>
+            <!-- Watch reveal (hidden until gift opens) -->
+            <div class="watch-reveal" id="watchReveal">
+                <div class="watch-display">
+                    <div class="watch-face">
+                        <span class="watch-emoji" role="img" aria-label="手表礼物">⌚</span>
+                    </div>
+                </div>
+                <div class="watch-info">
+                    <p class="gift-label">💎 真实礼物</p>
+                    <p class="gift-name">一只手表</p>
+                    <p class="gift-meaning recipient-context">
+                        希望这块表能陪<span class="recipient-target">你</span><br>
+                        走过每一个值得纪念的时刻。<br><br>
+                        23岁——刚刚好的年纪。<br>
+                        不再慌张，也不设限。<br>
+                        往后的每一分每一秒，<br>
+                        <strong style="color:#f0c4d0;">愿<span class="recipient-target">你</span>按自己喜欢的方式度过。</strong>
+                    </p>
                 </div>
             </div>
-            <div class="watch-info">
-                <div class="gift-label">💎 真实礼物</div>
-                <div class="gift-name">一只手表</div>
-                <div class="gift-meaning">
-                    希望这块表能陪你<br>
-                    走过每一个值得纪念的时刻。<br><br>
-                    23岁——刚刚好的年纪。<br>
-                    不再慌张，也不设限。<br>
-                    往后的每一分每一秒，<br>
-                    <strong style="color:#f0c4d0;">愿你按自己喜欢的方式度过。</strong>
-                </div>
-            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- ════════════ Message ════════════ -->
-<section id="message">
-    <div class="inner">
-        <div class="section-tag">· For You ·</div>
-        <div class="section-title">最后，想对你说</div>
-        <div class="message-block">
-            <p><span class="highlight">7月4日</span>，你的生日。</p>
-            <p>这一年肯定发生了不少事吧——<br>
-            开心的、难过的、纠结的、释然的……<br>
-            不管怎样，你走到这里了，<br>
-            走到了<span class="highlight">23岁</span>的这一天。</p>
-            <p>23岁其实挺好的——<br>
-            大概知道自己想要什么了，<br>
-            也有底气去试试看。<br>
-            偶尔迷个路也没关系，<br>
-            谁不是在边走边长大呢？</p>
-            <p>总之，生日快乐。<br>
-            希望你一直做自己喜欢的事，<br>
-            成为自己喜欢的人。<br>
-            其他的，慢慢来就好。</p>
+    <!-- ════════════ Message ════════════ -->
+    <section id="message">
+        <div class="inner">
+            <p class="section-tag" aria-hidden="true">· For You ·</p>
+            <h2 class="section-title">最后，想对<span class="recipient-target">你</span>说</h2>
+            <div class="message-block recipient-context">
+                <p><span class="highlight">7月4日</span>，<span class="recipient-target">你</span>的生日。</p>
+                <p>这一年肯定发生了不少事吧——<br>
+                开心的、难过的、纠结的、释然的……<br>
+                不管怎样，<span class="recipient-target">你</span>走到这里了，<br>
+                走到了<span class="highlight">23岁</span>的这一天。</p>
+                <p>23岁其实挺好的——<br>
+                大概知道自己想要什么了，<br>
+                也有底气去试试看。<br>
+                偶尔迷个路也没关系，<br>
+                谁不是在边走边长大呢？</p>
+                <p>总之，生日快乐。<br>
+                希望<span class="recipient-target">你</span>一直做自己喜欢的事，<br>
+                成为自己喜欢的人。<br>
+                其他的，慢慢来就好。</p>
+            </div>
+            <p class="signature" id="signature">—— 你的朋友 ✨</p>
         </div>
-        <div class="signature">—— 你的朋友 ✨</div>
-    </div>
-</section>
+    </section>
+</main>
 
 <!-- ════════════ Scripts ════════════ -->
 <script>
+/* === 全局变量：读取个性化称呼 === */
+const recipient = localStorage.getItem('recipientName') || '你';
+const sender = localStorage.getItem('senderName') || '你的朋友';
+
+/* === 紧急性：在所有内容渲染前替换称呼 === */
+(function applyNames() {
+    // 替换所有 .recipient-target 元素的文本
+    document.querySelectorAll('.recipient-target').forEach(el => {
+        el.textContent = recipient;
+    });
+    // 替换落款
+    const sig = document.getElementById('signature');
+    if (sig) sig.textContent = '—— ' + sender + ' ✨';
+})();
+
+/* === URL 参数处理：?birthday 强制触发生日模式，?reset 重置 === */
+(function handleURLParams() {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('reset')) {
+        localStorage.removeItem('birthday_triggered');
+        // 清理 URL 中的 reset 参数（不刷新页面）
+        url.searchParams.delete('reset');
+        window.history.replaceState({}, '', url.toString());
+    }
+})();
+
 // ── Starfield Background ──
 (function() {
     const canvas = document.getElementById('starsCanvas');
     const ctx = canvas.getContext('2d');
+    /* === 性能优化：星星数量从 180 降至 120 === */
+    const STAR_COUNT = 120;
     let stars = [];
-    const STAR_COUNT = 180;
 
     function resize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+        // 重新生成星星以适配新尺寸
+        stars = [];
+        for (let i = 0; i < STAR_COUNT; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.8 + 0.4,
+                twinkleSpeed: Math.random() * 0.015 + 0.005,
+                twinkleOffset: Math.random() * Math.PI * 2,
+                baseAlpha: Math.random() * 0.5 + 0.3
+            });
+        }
     }
     window.addEventListener('resize', resize);
     resize();
 
-    // Create stars
-    for (let i = 0; i < STAR_COUNT; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: Math.random() * 1.8 + 0.4,
-            twinkleSpeed: Math.random() * 0.015 + 0.005,
-            twinkleOffset: Math.random() * Math.PI * 2,
-            baseAlpha: Math.random() * 0.5 + 0.3
-        });
-    }
-
     function drawStars(timestamp) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw stars
         for (const s of stars) {
             const alpha = s.baseAlpha + Math.sin(timestamp * s.twinkleSpeed + s.twinkleOffset) * 0.25;
             ctx.beginPath();
             ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(245,210,220,${Math.max(0.08, alpha)})`;
             ctx.fill();
-
-            // Occasional glow
             if (alpha > 0.6) {
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, s.r * 2.5, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(245,210,220,0.04)`;
+                ctx.fillStyle = 'rgba(245,210,220,0.04)';
                 ctx.fill();
             }
         }
-
-        // Slow drift: move stars very slightly
         for (const s of stars) {
             s.y -= 0.08;
             if (s.y < -10) { s.y = canvas.height + 10; s.x = Math.random() * canvas.width; }
         }
-
         requestAnimationFrame(drawStars);
     }
     requestAnimationFrame(drawStars);
 })();
 
-// ── Countdown Timer ──
-(function() {
-    const BIRTHDAY = new Date('2026-07-04T00:00:00+08:00');
-    const daysEl = document.getElementById('cd-days');
-    const hoursEl = document.getElementById('cd-hours');
-    const minsEl = document.getElementById('cd-mins');
-    const secsEl = document.getElementById('cd-secs');
-    const hero = document.getElementById('hero');
-    const banner = document.getElementById('birthdayBanner');
-    const scrollHint = document.getElementById('scrollHint');
-    let birthdayTriggered = false;
-
-    function triggerBirthday() {
-        if (birthdayTriggered) return;
-        birthdayTriggered = true;
-
-        // Switch hero to birthday celebration mode
-        hero.classList.add('birthday-mode');
-        scrollHint.textContent = '🎉 生日快乐！往下看有礼物 🎉';
-
-        // Massive celebration
-        function celebBurst() {
-            launchConfetti(150);
-            // Fireworks across the screen
-            for (let i = 0; i < 12; i++) {
-                setTimeout(() => {
-                    const x = 80 + Math.random() * (window.innerWidth - 160);
-                    const y = 80 + Math.random() * (window.innerHeight - 300);
-                    sparkAt(x, y);
-                }, i * 150);
-            }
-        }
-
-        // Three waves of celebration
-        celebBurst();
-        setTimeout(celebBurst, 3000);
-        setTimeout(celebBurst, 6000);
-
-        // Gentle periodic celebration every 30 seconds
-        setInterval(() => {
-            launchConfetti(60);
-            const x = 80 + Math.random() * (window.innerWidth - 160);
-            const y = 80 + Math.random() * (window.innerHeight - 300);
-            sparkAt(x, y);
-        }, 30000);
-
-        showToast('🎂 就是今天！生日快乐！！🎂');
-    }
-
-    function update() {
-        const now = new Date();
-        let diff = BIRTHDAY - now;
-
-        if (diff <= 0) {
-            // Birthday time!
-            if (!birthdayTriggered) {
-                triggerBirthday();
-            }
-            // Keep the countdown numbers pulsing with celebration
-            daysEl.textContent = '🎂'; hoursEl.textContent = '🎉';
-            minsEl.textContent = '✨'; secsEl.textContent = '💝';
-            return;
-        }
-
-        // Normal countdown
-        const days = Math.floor(diff / 86400000); diff -= days * 86400000;
-        const hours = Math.floor(diff / 3600000); diff -= hours * 3600000;
-        const mins = Math.floor(diff / 60000); diff -= mins * 60000;
-        const secs = Math.floor(diff / 1000);
-
-        daysEl.textContent = String(days).padStart(2, '0');
-        hoursEl.textContent = String(hours).padStart(2, '0');
-        minsEl.textContent = String(mins).padStart(2, '0');
-        secsEl.textContent = String(secs).padStart(2, '0');
-    }
-    update();
-    setInterval(update, 1000);
-
-    // Also expose for testing: trigger with ?birthday in URL
-    if (window.location.search.includes('birthday')) {
-        triggerBirthday();
-    }
-})();
-
-// ── Wish Card Flip ──
-(function() {
-    const cards = document.querySelectorAll('.wish-card');
-    cards.forEach(card => {
-        card.addEventListener('click', () => {
-            card.classList.toggle('flipped');
-            if (card.classList.contains('flipped')) {
-                launchConfetti(25);
-            }
-        });
-    });
-})();
-
-// ── Gift Box ──
-(function() {
-    const box = document.getElementById('giftBox');
-    const reveal = document.getElementById('watchReveal');
-    const tip = document.getElementById('giftTip');
-    let opened = false;
-    box.addEventListener('click', () => {
-        if (!opened) {
-            box.classList.add('open');
-            opened = true;
-            launchConfetti(120);
-            tip.textContent = '';
-            // Show watch reveal after a short delay
-            setTimeout(() => {
-                reveal.classList.add('visible');
-                // Fireworks around watch
-                const rect = reveal.querySelector('.watch-display').getBoundingClientRect();
-                const cx = rect.left + rect.width / 2;
-                const cy = rect.top + rect.height / 2;
-                for (let i = 0; i < 8; i++) {
-                    setTimeout(() => sparkAt(cx + (Math.random()-0.5)*200, cy + (Math.random()-0.5)*140), i*100);
-                }
-                reveal.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 500);
-        } else {
-            box.classList.remove('open');
-            reveal.classList.remove('visible');
-            opened = false;
-            tip.textContent = '👆 再点一下合上';
-        }
-    });
-})();
+/* === 彩纸屑全局上限 200 枚 === */
+let activeConfetti = 0;
+const MAX_CONFETTI = 200;
 
 // ── Confetti ──
 function launchConfetti(count = 60) {
+    // 硬上限：不超过 200
+    const available = Math.max(0, MAX_CONFETTI - activeConfetti);
+    const actual = Math.min(count, available);
+    if (actual <= 0) return;
+
+    activeConfetti += actual;
+
     const container = document.getElementById('confettiContainer');
     const colors = ['#f5c6d0','#e8798a','#c44d70','#f0c4d0','#ffb3c6','#ffd700','#ff8fab','#cdb4db','#ffc8dd','#bde0fe'];
     const shapes = ['square','circle'];
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < actual; i++) {
         const piece = document.createElement('div');
         piece.className = 'confetti-piece';
         piece.style.left = Math.random() * 100 + '%';
@@ -771,7 +709,13 @@ function launchConfetti(count = 60) {
         piece.style.animationDuration = (2.5 + Math.random() * 4) + 's';
         piece.style.animationDelay = Math.random() * 0.6 + 's';
         container.appendChild(piece);
-        setTimeout(() => piece.remove(), 7000);
+
+        // 销毁时递减计数
+        const duration = parseFloat(piece.style.animationDuration) + parseFloat(piece.style.animationDelay);
+        setTimeout(() => {
+            piece.remove();
+            activeConfetti = Math.max(0, activeConfetti - 1);
+        }, (duration + 0.5) * 1000);
     }
 }
 
@@ -797,12 +741,247 @@ function sparkAt(cx, cy) {
     }
 }
 
-// ── Global click sparkles ──
-document.addEventListener('click', function(e) {
-    // Don't interfere with card/gift clicks
-    if (e.target.closest('.wish-card') || e.target.closest('.gift-box') || e.target.closest('.polaroid')) return;
-    sparkAt(e.clientX, e.clientY);
-});
+/* === 聚焦式彩纸屑：围绕指定元素为中心发射 === */
+function focusedConfetti(targetEl, count = 40) {
+    const rect = targetEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const container = document.getElementById('confettiContainer');
+    const colors = ['#f5c6d0','#e8798a','#ffd700','#f0c4d0','#ffb3c6','#ff8fab','#cdb4db'];
+
+    const available = Math.max(0, MAX_CONFETTI - activeConfetti);
+    const actual = Math.min(count, available);
+    if (actual <= 0) return;
+    activeConfetti += actual;
+
+    for (let i = 0; i < actual; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        // 以目标元素位置为中心，小范围扩散
+        const offsetX = (Math.random() - 0.5) * rect.width * 1.5;
+        const offsetY = (Math.random() - 0.5) * rect.height * 1.5;
+        piece.style.left = (cx + offsetX) + 'px';
+        piece.style.top = (cy + offsetY) + 'px';
+        const w = 5 + Math.random() * 10;
+        piece.style.width = w + 'px';
+        piece.style.height = w * (Math.random() > 0.5 ? 1 : 1.6) + 'px';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.animationDuration = (1.5 + Math.random() * 2.5) + 's';
+        container.appendChild(piece);
+
+        const duration = parseFloat(piece.style.animationDuration);
+        setTimeout(() => {
+            piece.remove();
+            activeConfetti = Math.max(0, activeConfetti - 1);
+        }, (duration + 0.3) * 1000);
+    }
+
+    // 附带几颗小火花
+    for (let i = 0; i < 8; i++) {
+        setTimeout(() => sparkAt(cx + (Math.random()-0.5)*120, cy + (Math.random()-0.5)*80), i * 60);
+    }
+}
+
+// ── Toast helper ──
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2800);
+}
+
+// ── Countdown Timer ──
+/* === 修复：生日到达后显示 00 天 00 时 00 分 00 秒，保持生日模式 === */
+(function() {
+    const BIRTHDAY = new Date('2026-07-04T00:00:00+08:00');
+    const daysEl = document.getElementById('cd-days');
+    const hoursEl = document.getElementById('cd-hours');
+    const minsEl = document.getElementById('cd-mins');
+    const secsEl = document.getElementById('cd-secs');
+    const hero = document.getElementById('hero');
+    const scrollHint = document.getElementById('scrollHint');
+    let birthdayTriggered = localStorage.getItem('birthday_triggered') === 'true';
+
+    /* === 检查 URL ?birthday 参数或已存储的状态 === */
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('birthday') && !birthdayTriggered) {
+        birthdayTriggered = true;
+        localStorage.setItem('birthday_triggered', 'true');
+    }
+
+    function triggerBirthday() {
+        if (birthdayTriggered) return;
+        birthdayTriggered = true;
+        localStorage.setItem('birthday_triggered', 'true');
+
+        // 切换生日模式
+        hero.classList.add('birthday-mode');
+        scrollHint.textContent = '🎉 生日快乐！往下看有礼物 🎉';
+
+        // 庆祝波次
+        function celebBurst() {
+            launchConfetti(150);
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => {
+                    const x = 80 + Math.random() * (window.innerWidth - 160);
+                    const y = 80 + Math.random() * (window.innerHeight - 300);
+                    sparkAt(x, y);
+                }, i * 150);
+            }
+        }
+        celebBurst();
+        setTimeout(celebBurst, 3000);
+        setTimeout(celebBurst, 6000);
+
+        // 持续轻量庆祝
+        setInterval(() => {
+            launchConfetti(60);
+            sparkAt(80 + Math.random() * (window.innerWidth - 160), 80 + Math.random() * (window.innerHeight - 300));
+        }, 30000);
+
+        showToast('🎂 就是今天！生日快乐！！🎂');
+    }
+
+    // 若已触发过，恢复 birthday-mode
+    if (birthdayTriggered) {
+        hero.classList.add('birthday-mode');
+        scrollHint.textContent = '🎉 生日快乐！往下看有礼物 🎉';
+    }
+
+    function update() {
+        const now = new Date();
+        let diff = BIRTHDAY - now;
+
+        if (diff <= 0) {
+            // === 修复：生日到达后显示 00，而非 emoji ===
+            if (!birthdayTriggered) triggerBirthday();
+            daysEl.textContent = '00';
+            hoursEl.textContent = '00';
+            minsEl.textContent = '00';
+            secsEl.textContent = '00';
+            return;
+        }
+
+        // 如果已触发生日模式（通过 ?birthday 手动触发），到达前也显示零值
+        if (birthdayTriggered) {
+            daysEl.textContent = '00';
+            hoursEl.textContent = '00';
+            minsEl.textContent = '00';
+            secsEl.textContent = '00';
+            return;
+        }
+
+        const days = Math.floor(diff / 86400000); diff -= days * 86400000;
+        const hours = Math.floor(diff / 3600000); diff -= hours * 3600000;
+        const mins = Math.floor(diff / 60000); diff -= mins * 60000;
+        const secs = Math.floor(diff / 1000);
+
+        daysEl.textContent = String(days).padStart(2, '0');
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minsEl.textContent = String(mins).padStart(2, '0');
+        secsEl.textContent = String(secs).padStart(2, '0');
+    }
+    update();
+    setInterval(update, 1000);
+})();
+
+// ── Wish Card Flip + 全翻奖励 ──
+(function() {
+    const cards = document.querySelectorAll('.wish-card');
+    const allHint = document.getElementById('allFlippedHint');
+    let allFlippedTriggered = false;
+
+    function checkAllFlipped() {
+        const allFlipped = Array.from(cards).every(c => c.classList.contains('flipped'));
+        if (allFlipped && !allFlippedTriggered) {
+            allFlippedTriggered = true;
+            // 大规模彩纸屑
+            launchConfetti(200);
+            showToast('✨ 四份祝福已全部开启，请收下 ——');
+            // 淡入提示文字
+            allHint.classList.add('visible');
+        }
+    }
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+            if (card.classList.contains('flipped')) {
+                launchConfetti(25);
+            }
+            checkAllFlipped();
+        });
+    });
+})();
+
+// ── Gift Box ──
+/* === 修复：单次打开，不可合上 === */
+(function() {
+    const box = document.getElementById('giftBox');
+    const reveal = document.getElementById('watchReveal');
+    const tip = document.getElementById('giftTip');
+    let opened = false;
+
+    box.addEventListener('click', () => {
+        if (opened) return; // 已打开，忽略后续点击
+        opened = true;
+
+        box.classList.add('open');
+        launchConfetti(120);
+        tip.textContent = '🎁 礼物已拆开，往下看 ↓';
+
+        // 延迟 0.6s 聚焦手表区域
+        setTimeout(() => {
+            reveal.classList.add('visible');
+            // 围绕手表位置的聚焦彩纸屑
+            const watchDisplay = reveal.querySelector('.watch-display');
+            focusedConfetti(watchDisplay, 40);
+            reveal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 600);
+    });
+})();
+
+// ── 流星雨彩蛋：3 秒内连续点击空白区域 5 次 ──
+(function() {
+    let clickTimes = [];
+    const REQUIRED_CLICKS = 5;
+    const TIME_WINDOW = 3000; // 3 秒
+
+    document.addEventListener('click', function(e) {
+        // 排除可交互元素
+        if (e.target.closest('.wish-card') ||
+            e.target.closest('.gift-box') ||
+            e.target.closest('.polaroid')) return;
+
+        const now = Date.now();
+        clickTimes.push(now);
+        // 清理超出时间窗口的记录
+        clickTimes = clickTimes.filter(t => now - t < TIME_WINDOW);
+
+        if (clickTimes.length >= REQUIRED_CLICKS) {
+            clickTimes = []; // 重置，防止重复触发
+            triggerMeteorShower();
+        }
+
+        // 普通点击的火花保留
+        sparkAt(e.clientX, e.clientY);
+    });
+
+    function triggerMeteorShower() {
+        showToast('🌠 流星划过，许个愿吧 ——');
+        // 30 个水平位置，Y 固定在 20~80px 顶部落下
+        for (let i = 0; i < 30; i++) {
+            setTimeout(() => {
+                const x = 20 + Math.random() * (window.innerWidth - 40);
+                const y = 20 + Math.random() * 60;
+                sparkAt(x, y);
+            }, i * 80);
+        }
+        // 附带彩纸屑
+        launchConfetti(80);
+    }
+})();
 
 // ── Keyboard easter eggs ──
 document.addEventListener('keydown', function(e) {
@@ -812,14 +991,6 @@ document.addEventListener('keydown', function(e) {
         showToast('✨ 彩带为你而落 ✨');
     }
 });
-
-// ── Toast helper ──
-function showToast(msg) {
-    const t = document.createElement('div');
-    t.className = 'toast'; t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2800);
-}
 
 // ── Initial entrance ──
 setTimeout(() => { launchConfetti(40); }, 1800);
@@ -842,13 +1013,14 @@ setTimeout(() => { launchConfetti(40); }, 1800);
         observer.observe(sec);
     });
 
-    // Make hero always visible initially
     document.querySelector('#hero').style.opacity = '1';
     document.querySelector('#hero').style.transform = '';
 })();
 
-console.log('💝 亲爱的朋友，生日快乐！');
+console.log('💝 生日快乐！');
 console.log('🎂 7月4日 · 23岁 · 最好的年华');
+console.log('💡 提示：在 localStorage 设置 recipientName 和 senderName 可个性化称呼');
+console.log('💡 URL 加 ?birthday 预览生日模式，?reset 重置状态');
 </script>
 </body>
 </html>
